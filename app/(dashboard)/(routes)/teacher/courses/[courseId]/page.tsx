@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 // import { IconBadge } from '@/components/icon-badges';
 import { IconBadge } from '../../../../../../components/icon-badges';
 import { LayoutDashboard } from 'lucide-react';
+import { TitleForm } from './_components/title-form';
 
 const CourseIdPage = async ({
     params
@@ -52,9 +53,13 @@ const CourseIdPage = async ({
                     <div className="flex items-center gap-x-2">
                         <IconBadge size="sm" icon={LayoutDashboard}/>
                         <h2 className="text-xl">
-                            Kustom pembelajaran Anda!
+                            Ubah judul pembelajaran Anda!
                         </h2>
                     </div>
+                    <TitleForm
+                    initialData = {course}
+                    courseId = {course.id}
+                    />
                 </div>
             </div>
         </div>

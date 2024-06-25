@@ -73,7 +73,7 @@ const CreatePage = () => {
                                 <FormControl>
                                     <Input
                                     disabled={isSubmitting}
-                                    placeholder="Saham: Investasi Saham 101"
+                                    placeholder="cth. Saham: Investasi Saham 101"
                                     {...field}
                                     />
                                 </FormControl>
