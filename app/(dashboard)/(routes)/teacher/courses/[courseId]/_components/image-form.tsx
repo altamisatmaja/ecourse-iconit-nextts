@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil } from 'lucide-react';
+import { Pencil, PlusCircle, ImageIcon } from 'lucide-react';
 import * as z from "zod";
 import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,18 +21,18 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Course } from '@prisma/client';
 
-interface DescriptionFormProps {
-    initialData: Course
+interface ImageFormProps {
+    initialData: Course;
     courseId: string;
 }
 
 const formSchema = z.object({
-    description: z.string().min(1, {
-        message: 'Description is required'
+    imageUrl: z.string().min(1, {
+        message: 'Image is required'
     }),
 });
 
-export const DescriptionForm = ({ initialData, courseId }: DescriptionFormProps) => {
+export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
     const [description, setDescription] = useState(initialData.description);
@@ -41,7 +41,7 @@ export const DescriptionForm = ({ initialData, courseId }: DescriptionFormProps)
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: { description: initialData?.description || "" },
+        defaultValues: { imageUrl: initialData?.imageUrl || "" },
     });
 
     const { isSubmitting, isValid } = form.formState;
@@ -49,7 +49,7 @@ export const DescriptionForm = ({ initialData, courseId }: DescriptionFormProps)
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
             const response = await axios.patch(`/api/courses/${courseId}`, { values });
-            toast.success("Pembelajaran berhasil diubah!");
+            toast.success("Gambar pembelajaran berhasil diubah!");
             toggleEditing();
             router.refresh();
         } catch (error) {
@@ -60,22 +60,40 @@ export const DescriptionForm = ({ initialData, courseId }: DescriptionFormProps)
     return (
         <div className="mt-6 border bg-slate-100 rounded-md p-4">
             <div className="font-medium flex items-center justify-between">
-                Deskripsi pembelajaran
+                Gambar pembelajaran
                 <Button variant="ghost" onClick={toggleEditing}>
-                    {isEditing ? "Cancel" : (<><Pencil className='h-4 w-4 mr-2'/>Ubah deskripsi</>)}
+                    { isEditing && (
+                        <>"Cancel"</>
+                    )}
+                    {!isEditing && !initialData.imageUrl && (
+                        <>
+                        <PlusCircle className="h-4 w-4 mr-2"/>
+                        Tambah gambar
+                        </>
+                    ) }
+                    {!isEditing && initialData.imageUrl && (
+                    <><Pencil className='h-4 w-4 mr-2'/>Ubah gambar</>
+                    )}
                 </Button>
             </div>
             {!isEditing && (
-                <p className={cn("text-sm mt-2", !initialData.description && "text-slate-500 italic")}>
-                    {initialData.description || "Tidak ada deskripsi"}
-                </p>
+                !initialData.imageUrl ? (
+                    <div className="flex items-center justify-center h-60 bg-slate-200 rounded-md">
+                        <ImageIcon className='h-10 w-10 text-slate-500'/>
+                    </div>
+                ) : 
+                (
+                    <div>
+                        Gambar awal
+                    </div>
+                )
             )}
             {isEditing && (
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
                         <FormField
                             control={form.control}
-                            name="description"
+                            name="imageUrl"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
