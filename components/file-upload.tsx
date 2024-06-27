@@ -17,9 +17,13 @@ export const FileUpload = ({
         <UploadDropzone
         endpoint={endpoint}
         onClientUploadComplete={(res) => {
+            console.log("onClientUploadComplete res:", res);
             onChange(res?.[0].url);
         }}
-        onUploadError={(e) => {
+        onUploadError={(e: Error) => {
+            console.log(endpoint);
+            console.log(onChange);
+            console.log(e);
             toast.error(`Terjadi kesalahan: ${e?.message}`)
         }}
         />

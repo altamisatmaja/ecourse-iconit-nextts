@@ -1,25 +1,17 @@
 "use client";
 
-import { Pencil, PlusCircle, ImageIcon } from 'lucide-react';
+import { Pencil, PlusCircle, ImageIcon, Upload } from 'lucide-react';
 import * as z from "zod";
 import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-
-import {
-    Form,
-    FormControl,
-    FormMessage,
-    FormField,
-    FormItem
-} from "@/components/ui/form";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
 import { Course } from '@prisma/client';
+import { FileUpload } from '../../../../../../../components/file-upload';
 
 interface ImageFormProps {
     initialData: Course;
@@ -35,7 +27,6 @@ const formSchema = z.object({
 export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
-    const [description, setDescription] = useState(initialData.description);
 
     const toggleEditing = () => setIsEditing((current) => !current);
 
@@ -48,12 +39,13 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
-            const response = await axios.patch(`/api/courses/${courseId}`, { values });
+            await axios.patch(`/api/courses/${courseId}`, { values });
             toast.success("Gambar pembelajaran berhasil diubah!");
             toggleEditing();
             router.refresh();
         } catch (error) {
-            toast.error("Terjadi kesalahan");
+            console.log(error);
+            toast.error(`Terjadi kesalahan: ${error}`);
         }
     };
 
@@ -63,7 +55,7 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
                 Gambar pembelajaran
                 <Button variant="ghost" onClick={toggleEditing}>
                     { isEditing && (
-                        <>"Cancel"</>
+                        <>Cancel</>
                     )}
                     {!isEditing && !initialData.imageUrl && (
                         <>
@@ -83,35 +75,30 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
                     </div>
                 ) : 
                 (
-                    <div>
-                        Gambar awal
+                    <div className="relative aspect-video mt-2">
+                        <Image
+                        alt="Upload"
+                        fill
+                        className="object-cover rounded-md"
+                        src={initialData.imageUrl}
+                        />
                     </div>
                 )
             )}
             {isEditing && (
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
-                        <FormField
-                            control={form.control}
-                            name="imageUrl"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <Textarea
-                                            disabled={isSubmitting}
-                                            placeholder="cth. 'Hal yang akan dipelajari di pembelajaran ini...'"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <div>
-                            <Button disabled={!isValid || isSubmitting} type="submit">Simpan</Button>
-                        </div>
-                    </form>
-                </Form>
+                <div>
+                    <FileUpload
+                    endpoint="courseImage"
+                    onChange={(url) => {
+                        if (url){
+                            onSubmit({ imageUrl: url });
+                        }
+                    }}
+                    />
+                    <div className="text-xs text-muted-foreground mt-4">
+                        16:9 Rekomendasi aspek rasio
+                    </div>
+                </div>
             )}
         </div>
     );

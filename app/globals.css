@@ -80,3 +80,5 @@ body,
     @apply bg-background text-foreground;
   }
 }
+
+@import "../node_modules/@uploadthing/react/dist/index.css";
